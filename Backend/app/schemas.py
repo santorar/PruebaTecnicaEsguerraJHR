@@ -1,4 +1,5 @@
 
+from decimal import Decimal
 from pydantic import BaseModel, field_validator
 from datetime import date, datetime
 from typing import Optional
@@ -85,8 +86,8 @@ class Puc(BaseModel):
 class LineaContable(BaseModel):
     id: int | None = None
     descripcion: str | None = None
-    debito: float = 0
-    credito: float = 0
+    debito: Decimal = 0
+    credito: Decimal = 0
     cuenta: str
     tercero_id: int | None = None
     comprobante_id: int | None = None
@@ -137,3 +138,17 @@ class TerceroUpdate(BaseModel):
     nombre: str
     numero_documento: str
     tipo_documento_id: int
+
+class LibroMayorRequest(BaseModel):
+    cuenta: str
+    fecha_inicial: date
+    fecha_final: date
+
+class LibroMayorResponse(BaseModel):
+    fecha: date
+    referencia: int
+    descripcion: str
+    tercero: str | None = None
+    debito: Decimal = 0
+    credito: Decimal = 0
+    acumulado: Decimal = 0
