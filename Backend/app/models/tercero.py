@@ -1,0 +1,25 @@
+from app.database import Base
+from app.models import LineaContable
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey
+
+class TipoDocumento(Base):
+    __tablename__: str = "tipo_documento"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    nombre: Mapped[str] = mapped_column(nullable=False)
+
+    terceros: Mapped[list['Tercero']] = relationship(back_populates='tipo_documento')
+
+
+class Tercero(Base):
+    __tablename__: str = "tercero"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    nombre: Mapped[str] = mapped_column(nullable=False)
+    numero_documento: Mapped[str] = mapped_column(nullable=False)
+
+    tipo_documento_id: Mapped[int] = mapped_column(ForeignKey('tipo_documento.id'), nullable=False)
+
+    tipo_documento: Mapped['TipoDocumento'] = relationship(back_populates='terceros')
+    lineas: Mapped[list['LineaContable']] = relationship(back_populates='tercero')
