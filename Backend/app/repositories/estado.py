@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 from app.models.general import Estado
 
+def get_estados(db: Session) -> list[Estado]:
+    return db.query(Estado).all()
+
 def get_estado(db: Session, estado_id: int) -> Estado | None:
     return db.query(Estado).filter(Estado.id == estado_id).first()
 
