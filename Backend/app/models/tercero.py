@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from database import Base
+from app.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
 if TYPE_CHECKING:
-    from models.comprobante import LineaContable
+    from app.models.comprobante import LineaContable
 
 class TipoDocumento(Base):
     __tablename__: str = "tipo_documento"

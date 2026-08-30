@@ -1,9 +1,10 @@
-from curses.ascii import isdigit
-
-from fastapi import APIRouter, HTTPException
-from schemas import Puc as PucSchema
-from database import get_db
-from models import puc
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from app.schemas import Puc as PucSchema
+from app.database import get_db
+from app.services import puc as puc_service
+from app.services.puc import PucValidationError
+from app.repositories import puc as puc_repository
 
 
 router = APIRouter(prefix="/puc", tags=["puc"])
