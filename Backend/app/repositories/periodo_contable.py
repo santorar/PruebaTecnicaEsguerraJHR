@@ -21,6 +21,16 @@ def get_periodo_contable_activo(db: Session, id: int) -> PeriodoContable | None:
 
     return db.query(PeriodoContable).filter(PeriodoContable.id == id, PeriodoContable.estado_id == estado_activo.id).first()
 
+def get_periodo_contable_activo_for_update(db: Session, id: int) -> PeriodoContable | None:
+    estado_activo = db.query(Estado).filter(Estado.nombre == "abierto").first()
+    if estado_activo is None:
+        raise Exception("Estado 'abierto' no encontrado en la base de datos")
+
+    return db.query(PeriodoContable).filter(
+        PeriodoContable.id == id, 
+        PeriodoContable.estado_id == estado_activo.id
+    ).with_for_update().first()
+
 def get_estado_periodo(db: Session, periodo_id: int) -> Estado | None:
     periodo = db.query(PeriodoContable).filter(PeriodoContable.id == periodo_id).first()
     if periodo is None:

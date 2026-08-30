@@ -26,6 +26,15 @@ def get_comprobante(db: Session, comprobante_id: int) -> Comprobante | None:
         joinedload(Comprobante.comprobante_original),
     ).filter(Comprobante.id == comprobante_id).first()
 
+def get_comprobante_for_update(db: Session, comprobante_id: int) -> Comprobante | None:
+    return db.query(Comprobante).options(
+        joinedload(Comprobante.lineas).joinedload(LineaContable.cuenta_rel),
+        joinedload(Comprobante.estado),
+        joinedload(Comprobante.comprobante_reversor),
+        joinedload(Comprobante.comprobante_sustituto),
+        joinedload(Comprobante.comprobante_original),
+    ).filter(Comprobante.id == comprobante_id).with_for_update().first()
+
 def get_comprobante_estado(db: Session, comprobante_id: int) -> Estado | None:
     comprobante = db.query(Comprobante).filter(Comprobante.id == comprobante_id).first()
     if comprobante is None:

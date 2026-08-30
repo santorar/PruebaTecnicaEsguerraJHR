@@ -4,10 +4,14 @@ from app.models.comprobante import Comprobante
 from app.repositories import comprobante as comprobante_repository, periodo_contable as periodo_contable_repository, estado as estado_repository, puc as puc_repository, empresa as empresa_repository, usuario as usuario_repository
 from fastapi import HTTPException
 
-def validar_comprobante(comprobante_data: ComprobanteSchema, db: Session) -> None:
+def validar_comprobante(comprobante_data: ComprobanteSchema, db: Session, with_lock: bool = False) -> None:
     periodo_contable_id = comprobante_data.periodo_contable_id
-    if periodo_contable_repository.get_periodo_contable_activo(db, periodo_contable_id) is None:
-        raise HTTPException(status_code=400, detail="El periodo contable no está activo o no existe")
+    if with_lock:
+        if periodo_contable_repository.get_periodo_contable_activo_for_update(db, periodo_contable_id) is None:
+            raise HTTPException(status_code=400, detail="El periodo contable no está activo o no existe")
+    else:
+        if periodo_contable_repository.get_periodo_contable_activo(db, periodo_contable_id) is None:
+            raise HTTPException(status_code=400, detail="El periodo contable no está activo o no existe")
     if not comprobante_data.lineas or len(comprobante_data.lineas) < 2:
         raise HTTPException(status_code=400, detail="El comprobante debe tener al menos dos líneas contables")
     if empresa_repository.get_empresa(db, comprobante_data.empresa_id) is None:
@@ -46,17 +50,17 @@ def validar_comprobante(comprobante_data: ComprobanteSchema, db: Session) -> Non
     
 
 def create_comprobante(db: Session, comprobante: ComprobanteSchema) -> Comprobante:
-    validar_comprobante(comprobante, db)
+    validar_comprobante(comprobante, db, with_lock=True)
     return comprobante_repository.create_comprobante(db, comprobante)
 
 
 def update_comprobante(db: Session, comprobante_id: int, comprobante: ComprobanteSchema) -> Comprobante | None:
-    validar_comprobante(comprobante, db)
+    validar_comprobante(comprobante, db, with_lock=True)
 
     estado_borrador = estado_repository.get_estado_by_nombre(db, "borrador")
     estado_anulado = estado_repository.get_estado_by_nombre(db, "anulado")
     estado_contabilizado = estado_repository.get_estado_by_nombre(db, "contabilizado")
-    comprobante_actual = comprobante_repository.get_comprobante(db, comprobante_id)
+    comprobante_actual = comprobante_repository.get_comprobante_for_update(db, comprobante_id)
     if comprobante_actual is None:
         raise HTTPException(status_code=404, detail="Comprobante no encontrado")
     if comprobante_actual.estado_id == estado_borrador.id:
@@ -82,10 +86,10 @@ def update_comprobante(db: Session, comprobante_id: int, comprobante: Comprobant
             tercero_id=linea.tercero_id
         )
         comprobante_anulacion.lineas.append(linea_anulacion)
-    db_comprobante_anulacion = comprobante_repository.create_comprobante(db, comprobante_anulacion)
+    db_comprobante_anulacion = comprobante_repository.create_comprobante(db, comprobante_anulacion, esNuevo=False)
     # Creacion del comprobante de remplazo
     comprobante.comprobante_original_id = comprobante_actual.id
-    db_comprobante_sustituto = comprobante_repository.create_comprobante(db, comprobante)
+    db_comprobante_sustituto = comprobante_repository.create_comprobante(db, comprobante, esNuevo=False)
     comprobante_repository.update_comprobante_anulacion(
         db, 
         comprobante_actual, 
@@ -97,12 +101,14 @@ def update_comprobante(db: Session, comprobante_id: int, comprobante: Comprobant
     
 
 def update_comprobante_estado(db: Session, comprobante_id: int, estado_id: int) -> Comprobante | None:
-    db_comprobante = comprobante_repository.get_comprobante(db, comprobante_id)
+    db_comprobante = comprobante_repository.get_comprobante_for_update(db, comprobante_id)
     if db_comprobante is None:
         raise HTTPException(status_code=404, detail="Comprobante no encontrado")
+    
     estado_nuevo = estado_repository.get_estado(db, estado_id)
     if estado_nuevo is None:
         raise HTTPException(status_code=404, detail="Estado no encontrado")
+    
     estado_actual = estado_repository.get_estado(db, db_comprobante.estado_id)
     if estado_actual is None:
         raise HTTPException(status_code=404, detail="Estado actual del comprobante no encontrado")
@@ -110,6 +116,12 @@ def update_comprobante_estado(db: Session, comprobante_id: int, estado_id: int) 
         raise HTTPException(status_code=400, detail="Solo se pueden cambiar estados de comprobantes en estado 'borrador'")
     if estado_nuevo.nombre not in ["contabilizado", "anulado"]:
         raise HTTPException(status_code=400, detail="El nuevo estado debe ser 'contabilizado' o 'anulado'")
+    
+    if estado_nuevo.nombre == "contabilizado":
+        periodo_bloqueado = periodo_contable_repository.get_periodo_contable_activo_for_update(db, db_comprobante.periodo_contable_id)
+        if periodo_bloqueado is None:
+            raise HTTPException(status_code=400, detail="El periodo contable no está activo o fue cerrado")
+    
     return comprobante_repository.update_comprobante_estado(db, comprobante_id, estado_id)
 
 def delete_comprobante(db: Session, comprobante_id: int):
