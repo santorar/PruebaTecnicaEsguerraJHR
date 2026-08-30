@@ -1,7 +1,12 @@
-from app.database import Base
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from schemas import Puc as PucSchema
+from database import Base
 from sqlalchemy import CheckConstraint, CHAR, Any
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.models import LineaContable
+from sqlalchemy.orm import Mapped, mapped_column, relationship, Session
+
+if TYPE_CHECKING:
+    from models.comprobante import LineaContable
 
 
 class Puc(Base):

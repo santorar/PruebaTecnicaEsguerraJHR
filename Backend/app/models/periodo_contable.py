@@ -1,8 +1,13 @@
-from app.database import Base
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from datetime import date
-from app.models import Estado, Comprobante
+
+if TYPE_CHECKING:
+    from models.general import Estado
+    from models.comprobante import Comprobante
 
 class PeriodoContable(Base):
     __tablename__: str = "periodo_contable"

@@ -1,9 +1,18 @@
-from app.database import Base
-from app.models import Empresa, PeriodoContable, Usuario, Estado, Puc, Tercero
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from database import Base
 from datetime import datetime
 from sqlalchemy import Text, Numeric, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from decimal import Decimal
+
+if TYPE_CHECKING:
+    from models.empresa import Empresa
+    from models.periodo_contable import PeriodoContable
+    from models.usuario import Usuario
+    from models.puc import Puc
+    from models.tercero import Tercero
+    from models.general import Estado
 
 class Comprobante(Base):
     __tablename__: str = "comprobante"
