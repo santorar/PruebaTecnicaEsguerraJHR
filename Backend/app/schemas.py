@@ -1,5 +1,27 @@
 
 from pydantic import BaseModel
+from datetime import date
+from typing import Optional
+
+
+class Estado(BaseModel):
+    id: int | None = None
+    nombre: str
+
+    class Config:
+        from_attributes = True
+
+class PeriodoContable(BaseModel):
+    id: int | None = None
+    nombre: str
+    fecha_inicio: date
+    fecha_fin: date
+    estado_id: int | None = None
+
+    estado: Optional[Estado] = None
+
+    class Config:
+        from_attributes = True
 
 class Puc(BaseModel):
     codigo: str
