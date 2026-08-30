@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.schemas import Comprobante as ComprobanteSchema, LineaContable as LineaContableSchema
 from app.models.comprobante import Comprobante
-from app.repositories import comprobante as comprobante_repository, periodo_contable as periodo_contable_repository, estado as estado_repository, puc as puc_repository
+from app.repositories import comprobante as comprobante_repository, periodo_contable as periodo_contable_repository, estado as estado_repository, puc as puc_repository, empresa as empresa_repository, usuario as usuario_repository
 from fastapi import HTTPException
 
 def validar_comprobante(comprobante_data: ComprobanteSchema, db: Session) -> None:
@@ -10,6 +10,10 @@ def validar_comprobante(comprobante_data: ComprobanteSchema, db: Session) -> Non
         raise HTTPException(status_code=400, detail="El periodo contable no está activo o no existe")
     if not comprobante_data.lineas or len(comprobante_data.lineas) < 2:
         raise HTTPException(status_code=400, detail="El comprobante debe tener al menos dos líneas contables")
+    if empresa_repository.get_empresa(db, comprobante_data.empresa_id) is None:
+        raise HTTPException(status_code=400, detail="La empresa no está activo o no existe")
+    if usuario_repository.get_usuario(db, comprobante_data.usuario_id) is None:
+        raise HTTPException(status_code=400, detail="El usuario no está activo o no existe")
     for linea in comprobante_data.lineas:
         if linea.debito < 0 or linea.credito < 0:
             raise HTTPException(status_code=400, detail="Los valores de débito y crédito no pueden ser negativos")
