@@ -40,10 +40,13 @@ def update_comprobante(comprobante_id: int, comprobante_data: ComprobanteSchema,
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.delete("/{comprobante_id}", response_model=ComprobanteSchema)
+@router.delete("/{comprobante_id}", status_code=200)
 def delete_comprobante(comprobante_id: int, db: Session = Depends(get_db)):
     try:
-        return comprobante_service.delete_comprobante(db, comprobante_id)
+        comprobante_service.delete_comprobante(db, comprobante_id)
+        return {"detail": "Comprobante eliminado correctamente"}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

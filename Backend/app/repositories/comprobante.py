@@ -117,6 +117,7 @@ def delete_comprobante(db: Session, comprobante_id: int) -> bool:
     db_comprobante = db.query(Comprobante).filter(Comprobante.id == comprobante_id).first()
     if db_comprobante is None:
         return False
+    db.query(LineaContable).filter(LineaContable.comprobante_id == comprobante_id).delete()
     db.delete(db_comprobante)
     db.commit()
     return True
