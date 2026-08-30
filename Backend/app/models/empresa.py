@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from app.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import text
 
 if TYPE_CHECKING:
     from app.models.usuario import Usuario
@@ -14,6 +15,7 @@ class Empresa(Base):
     nombre: Mapped[str] = mapped_column(nullable=False)
     nit: Mapped[str] = mapped_column(nullable=False)
     dv: Mapped[int] = mapped_column(nullable=False)
+    activo: Mapped[bool] = mapped_column(default=True, server_default=text('true'), nullable=False)
 
     usuarios: Mapped[list['Usuario']] = relationship(back_populates='empresa')
     comprobantes: Mapped[list['Comprobante']] = relationship(back_populates='empresa')

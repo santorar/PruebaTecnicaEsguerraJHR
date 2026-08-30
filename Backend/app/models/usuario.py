@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from app.database import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, text
 
 if TYPE_CHECKING:
     from app.models.comprobante import Comprobante
@@ -16,6 +16,7 @@ class Usuario(Base):
     nombre: Mapped[str] = mapped_column(nullable=False, index=True)
     correo: Mapped[str] = mapped_column(unique=True, index=True, nullable=False)
     clave_encriptada: Mapped[str] = mapped_column(nullable=False)
+    activo: Mapped[bool] = mapped_column(default=True, server_default=text('true'), nullable=False)
 
     empresa_id: Mapped[int] = mapped_column(ForeignKey('empresa.id'))
     empresa: Mapped['Empresa'] = relationship(back_populates='usuarios')
