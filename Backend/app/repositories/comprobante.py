@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session, joinedload
 from app.schemas import Comprobante as ComprobanteSchema, LibroMayorRequest
 from app.models.comprobante import Comprobante, LineaContable
 from app.models.general import Estado
-from sqlalchemy import and_, or_
 
 def get_comprobantes(db: Session, estado_id: int | None, skip: int = 0, limit: int = 100) -> list[Comprobante]:
     query = db.query(Comprobante)
@@ -43,32 +42,6 @@ def get_comprobante_estado(db: Session, comprobante_id: int) -> Estado | None:
         return None
     return db.query(Estado).filter(Estado.id == comprobante.estado_id).first()
 
-def get_comprobante_libro_mayor(db: Session, request: LibroMayorRequest):
-    estado_contabilizado = db.query(Estado).filter(Estado.nombre == "contabilizado").first()
-    if estado_contabilizado is None:
-        return []
-    estado_anulado = db.query(Estado).filter(Estado.nombre == "anulado").first()
-    if estado_anulado is None:
-        return []
-    
-    fecha_inicial_dt = datetime.combine(request.fecha_inicial, datetime.min.time())
-    fecha_final_dt = datetime.combine(request.fecha_final, datetime.max.time())
-
-    lineas = db.query(LineaContable).options(
-        joinedload(LineaContable.tercero),
-        joinedload(LineaContable.comprobante)
-    ).join(Comprobante).filter(
-        and_(
-            LineaContable.cuenta == request.cuenta,
-            or_(
-                Comprobante.estado_id == estado_contabilizado.id,
-                Comprobante.estado_id == estado_anulado.id,
-            ),
-            Comprobante.fecha_contabilizacion >= fecha_inicial_dt,
-            Comprobante.fecha_contabilizacion <= fecha_final_dt
-        )
-    ).order_by(Comprobante.fecha_contabilizacion, LineaContable.id).all()
-    return lineas
 
 def create_comprobante(db: Session, comprobante: ComprobanteSchema, esNuevo: bool = True) -> Comprobante:
     estado_borrador = db.query(Estado).filter(Estado.nombre == "borrador").first()
