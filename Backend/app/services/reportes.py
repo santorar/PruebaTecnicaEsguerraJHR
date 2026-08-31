@@ -11,7 +11,6 @@ import httpx
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from Backend.app.routes import reportes
 from app.config import get_settings
 from app.database import SessionLocal
 from app.models.general import GeneracionExogena
