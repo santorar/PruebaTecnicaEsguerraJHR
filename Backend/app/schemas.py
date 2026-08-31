@@ -152,3 +152,59 @@ class LibroMayorResponse(BaseModel):
     debito: Decimal = 0
     credito: Decimal = 0
     acumulado: Decimal = 0
+
+class ExogenaGenerarRequest(BaseModel):
+    empresa_id: int
+    anio_gravable: int
+    umbral_uvt: Decimal = 0
+
+    @field_validator('anio_gravable')
+    @classmethod
+    def validar_anio_gravable(cls, v):
+        if v < 1900 or v > 2199:
+            raise ValueError('El año gravable debe estar entre 1900 y 2199')
+        return v
+
+    @field_validator('umbral_uvt')
+    @classmethod
+    def validar_umbral_uvt(cls, v):
+        if v < 0:
+            raise ValueError('El umbral en UVT no puede ser negativo')
+        return v
+
+class ExogenaGeneracionResponse(BaseModel):
+    id: int
+    fecha_generacion: datetime
+    empresa_id: int
+    anio_gravable: int
+    umbral_uvt: Decimal
+    valor_uvt: Decimal
+    registros_incluidos: int
+    registros_excluidos: int
+    total_valor_bruto: Decimal
+    total_retencion: Decimal
+    nombre_archivo: str
+
+    class Config:
+        from_attributes = True
+
+class ExogenaUvtValorResponse(BaseModel):
+    anio: int
+    valor: Decimal
+    fuente: str | None = None
+    fecha_actualizacion: datetime | None = None
+
+    class Config:
+        from_attributes = True
+
+class ExogenaUvtLogResponse(BaseModel):
+    id: int
+    fecha: datetime
+    fuente: str
+    exitoso: bool
+    anio: int | None = None
+    valor: Decimal | None = None
+    detalle: str | None = None
+
+    class Config:
+        from_attributes = True
