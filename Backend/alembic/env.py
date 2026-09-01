@@ -8,7 +8,7 @@ from alembic import context
 from app.database import Base
 from app.config import get_settings
 
-from app.models import Empresa, Usuario, Puc, Estado, PeriodoContable, Comprobante, TipoDocumento, Tercero, LineaContable
+from app.models import Empresa, Usuario, Puc, Estado, PeriodoContable, Comprobante, TipoDocumento, Tercero, LineaContable, UvtValor, UvtActualizacionLog, GeneracionExogena
 
 settings = get_settings()
 CONNECTION_URL = (
