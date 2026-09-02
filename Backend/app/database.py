@@ -6,7 +6,7 @@ from app.config import get_settings
 settings = get_settings()
 CONNECTION_URL = (
     f"postgresql://{settings.postgres_user}:{settings.postgres_password}"
-    f"@localhost:5432/{settings.postgres_db}"
+    f"@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
 )
 
 engine = create_engine(CONNECTION_URL)
