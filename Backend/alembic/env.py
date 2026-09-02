@@ -13,7 +13,7 @@ from app.models import Empresa, Usuario, Puc, Estado, PeriodoContable, Comproban
 settings = get_settings()
 CONNECTION_URL = (
     f"postgresql://{settings.postgres_user}:{settings.postgres_password}"
-    f"@localhost:5432/{settings.postgres_db}"
+    f"@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
 )
 
 # this is the Alembic Config object, which provides
