@@ -26,7 +26,7 @@ class Comprobante(Base):
     empresa_id: Mapped[int] = mapped_column(ForeignKey('empresa.id'), nullable=False)
     periodo_contable_id: Mapped[int] = mapped_column(ForeignKey('periodo_contable.id'), nullable=False)
     usuario_id: Mapped[int] = mapped_column(ForeignKey('usuario.id'), nullable=False)
-    estado_id: Mapped[int] = mapped_column(ForeignKey('estado.id'), nullable=False, default=1)
+    estado_id: Mapped[int] = mapped_column(ForeignKey('estado.id'), nullable=False)
     comprobante_reversor_id: Mapped[int | None] = mapped_column(ForeignKey('comprobante.id'), nullable=True)
     comprobante_sustituto_id: Mapped[int | None] = mapped_column(ForeignKey('comprobante.id'), nullable=True)
     comprobante_original_id: Mapped[int | None] = mapped_column(ForeignKey('comprobante.id'), nullable=True)

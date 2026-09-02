@@ -47,7 +47,9 @@ def create_comprobante(db: Session, comprobante: ComprobanteSchema, esNuevo: boo
     estado_borrador = db.query(Estado).filter(Estado.nombre == "borrador").first()
     if estado_borrador is None:
         raise Exception("Estado 'borrador' no encontrado en la base de datos")
-    estado_id = estado_borrador.id if esNuevo else comprobante.estado_id
+    # Si no viene un estado explicito (p. ej. el sustituto de una reversion),
+    # se resuelve 'borrador' por nombre en lugar de depender de un id fijo.
+    estado_id = estado_borrador.id if esNuevo or comprobante.estado_id is None else comprobante.estado_id
 
     db_comprobante = Comprobante(
         descripcion=comprobante.descripcion,
