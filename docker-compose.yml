@@ -11,6 +11,43 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  # API FastAPI: ejecuta las migraciones de Alembic al arrancar y luego sirve la aplicacion
+  backend:
+    build: ./Backend
+    container_name: balance-backend
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      EXOGENA_FILES_DIR: /app/exogena_files
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+    volumes:
+      - exogena_files:/app/exogena_files
+    ports:
+      - "8000:8000"
+
+  # Frontend Next.js (build standalone); NEXT_PUBLIC_API_URL se fija en build
+  # y debe apuntar a una URL alcanzable desde el navegador del host
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    container_name: balance-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres_data:
+  exogena_files:
