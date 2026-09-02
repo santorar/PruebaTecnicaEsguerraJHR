@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.repositories import estado as estado_repository
 
-router = APIRouter(prefix="/estado", tags=["estado"])
+from app.dependencias import obtener_usuario_actual
+
+router = APIRouter(prefix="/estado", tags=["estado"], dependencies=[Depends(obtener_usuario_actual)])
 
 @router.get("/", response_model=list[EstadoSchema])
 def read_estados(db: Session = Depends(get_db)):

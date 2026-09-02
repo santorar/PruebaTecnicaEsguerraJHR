@@ -3,6 +3,7 @@ from app.database import get_db
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.services import empresa as empresa_service
+from app.dependencias import obtener_usuario_actual
 from app.repositories import empresa as empresa_repository
 
 router = APIRouter(prefix="/empresa", tags=["empresa"])
@@ -19,7 +20,7 @@ def read_empresa(empresa_id: int, db: Session = Depends(get_db)):
     return db_empresa
 
 @router.post("/", response_model=EmpresaSchema, status_code=201)
-def create_empresa(empresa_data: EmpresaCreate, db: Session = Depends(get_db)):
+def create_empresa(empresa_data: EmpresaCreate, db: Session = Depends(get_db), _: None = Depends(obtener_usuario_actual)):
     try:
         return empresa_service.create_empresa(db, empresa_data)
     except HTTPException:
@@ -28,7 +29,7 @@ def create_empresa(empresa_data: EmpresaCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.put("/{empresa_id}", response_model=EmpresaSchema)
-def update_empresa(empresa_id: int, empresa_data: EmpresaUpdate, db: Session = Depends(get_db)):
+def update_empresa(empresa_id: int, empresa_data: EmpresaUpdate, db: Session = Depends(get_db), _: None = Depends(obtener_usuario_actual)):
     try:
         return empresa_service.update_empresa(db, empresa_id, empresa_data)
     except HTTPException:
@@ -37,7 +38,7 @@ def update_empresa(empresa_id: int, empresa_data: EmpresaUpdate, db: Session = D
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/{empresa_id}", response_model=EmpresaSchema)
-def delete_empresa(empresa_id: int, db: Session = Depends(get_db)):
+def delete_empresa(empresa_id: int, db: Session = Depends(get_db), _: None = Depends(obtener_usuario_actual)):
     try:
         return empresa_service.delete_empresa(db, empresa_id)
     except HTTPException:

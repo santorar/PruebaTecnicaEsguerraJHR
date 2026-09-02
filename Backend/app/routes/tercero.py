@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from app.services import tercero as tercero_service
 from app.repositories import tercero as tercero_repository, tipo_documento as tipo_documento_repository
 
-router = APIRouter(prefix="/tercero", tags=["tercero"])
+from app.dependencias import obtener_usuario_actual
+
+router = APIRouter(prefix="/tercero", tags=["tercero"], dependencies=[Depends(obtener_usuario_actual)])
 
 @router.get("/", response_model=list[TerceroSchema])
 def read_terceros(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -45,7 +47,7 @@ def delete_tercero(tercero_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-router_tipos_documento = APIRouter(prefix="/tipo-documento", tags=["tipo-documento"])
+router_tipos_documento = APIRouter(prefix="/tipo-documento", tags=["tipo-documento"], dependencies=[Depends(obtener_usuario_actual)])
 
 @router_tipos_documento.get("/", response_model=list[TipoDocumentoSchema])
 def read_tipos_documento(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

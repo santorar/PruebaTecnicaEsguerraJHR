@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from app.services import usuario as usuario_service
 from app.repositories import usuario as usuario_repository
 
-router = APIRouter(prefix="/usuario", tags=["usuario"])
+from app.dependencias import obtener_usuario_actual
+
+router = APIRouter(prefix="/usuario", tags=["usuario"], dependencies=[Depends(obtener_usuario_actual)])
 
 @router.get("/", response_model=list[UsuarioSchema])
 def read_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

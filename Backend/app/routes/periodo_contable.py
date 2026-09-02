@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from app.services import periodo_contable as periodo_service
 from app.repositories import periodo_contable as periodo_repository
 
-router = APIRouter(prefix="/periodo-contable", tags=["periodo-contable"])
+from app.dependencias import obtener_usuario_actual
+
+router = APIRouter(prefix="/periodo-contable", tags=["periodo-contable"], dependencies=[Depends(obtener_usuario_actual)])
 
 @router.get("/", response_model=list[PeriodoContableSchema])
 def read_periodos_contables(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

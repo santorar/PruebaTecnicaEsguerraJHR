@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.middleware import CabecerasSeguridadMiddleware, OrigenVerificadoMiddleware
-from app.routes import puc, comprobante, periodo_contable, empresa, usuario, estado, tercero, reportes
+from app.routes import puc, comprobante, periodo_contable, empresa, usuario, estado, tercero, reportes, auth
 from app.services import reportes as reportes_service
 
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +36,7 @@ app.add_middleware(
 )
 
 
+app.include_router(auth.router)
 app.include_router(puc.router)
 app.include_router(comprobante.router)
 app.include_router(periodo_contable.router)

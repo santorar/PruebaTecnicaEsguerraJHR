@@ -7,7 +7,9 @@ from app.services.puc import PucValidationError
 from app.repositories import puc as puc_repository
 
 
-router = APIRouter(prefix="/puc", tags=["puc"])
+from app.dependencias import obtener_usuario_actual
+
+router = APIRouter(prefix="/puc", tags=["puc"], dependencies=[Depends(obtener_usuario_actual)])
 
 
 @router.get("/", response_model=list[PucSchema])

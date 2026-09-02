@@ -6,7 +6,9 @@ from app.services import comprobante as comprobante_service, linea_contable as l
 from app.repositories import comprobante as comprobante_repository
 
 
-router = APIRouter(prefix="/comprobante", tags=["comprobante"])
+from app.dependencias import obtener_usuario_actual
+
+router = APIRouter(prefix="/comprobante", tags=["comprobante"], dependencies=[Depends(obtener_usuario_actual)])
 
 @router.get("/", response_model=list[ComprobanteSchema])
 def read_comprobantes(estado_id: int | None = None, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

@@ -55,6 +55,15 @@ class UsuarioUpdateClave(BaseModel):
     clave_nueva: str
     confirmacion_clave_nueva: str
 
+class LoginRequest(BaseModel):
+    correo: str
+    clave: str
+
+class TokenResponse(BaseModel):
+    token: str
+    token_type: str = "bearer"
+    usuario: Usuario
+
 class Estado(BaseModel):
     id: int | None = None
     nombre: str
